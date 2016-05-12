@@ -34,8 +34,14 @@ end
 package pkg
 
 # Credentials files
-bag = node['cifs']['password_data_bag']
-credentials = Chef::EncryptedDataBagItem.load(bag, 'cifs') rescue nil
+if node['cifs']['encrypted_password_data_bag'].nil?
+  bag = node['cifs']['password_data_bag']
+  credentials = data_bag_item(bag, 'cifs') rescue nil
+else
+  bag = node['cifs']['encrypted_password_data_bag']
+  credentials = Chef::EncryptedDataBagItem.load(bag, 'cifs') rescue nil
+end
+
 
 if credentials
   template node['cifs']['credential_file'] do
